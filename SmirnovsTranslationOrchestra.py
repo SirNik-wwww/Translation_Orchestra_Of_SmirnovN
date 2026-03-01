@@ -118,7 +118,7 @@ def parse_items_to_excel(file_path):
 
         # 2. find
         new_content = content.replace(r'\"', r'\!').strip()
-        potential_blocks = re.findall(r'\{[^{}]*?Item_ID\s*=.*?\}|new\s+\w*?PerformEffect_Item.*?Description\s*=\s*".*?"', new_content, re.DOTALL)
+        potential_blocks = re.findall(r'Item_ID\s*=.*?Description\s*=\s*".*?"', new_content, re.DOTALL)
 
 
         fields = {
