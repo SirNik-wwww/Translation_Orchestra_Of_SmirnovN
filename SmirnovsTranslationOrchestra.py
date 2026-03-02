@@ -173,7 +173,7 @@ def parse_abil_to_excel(file_path):
 
         # 2. find
         new_content = content.replace(r'\"', r'\!').strip()
-        potential_blocks = re.findall(r'new\s*Ability.*?Description\s*=\s*".*?"', new_content, re.DOTALL)
+        potential_blocks = re.findall(r'new\s*Ability.*?Visuals\s*=', new_content, re.DOTALL)
 
         fields = {
             'Abil_ID': r'new\s*Ability\("(.*?)"',
@@ -372,7 +372,7 @@ if were_files_found == 1:
         chars_id_tab.append('nope')
 
     results = list(zip(chars_id_tab,chars_names_tab))
-    df = pd.DataFrame(results, columns=['id', 'name'])
+    df = pd.DataFrame(results, columns=['id', 'text'])
     df.to_excel('borchestra_chars.xlsx', index=False)
     #_________________________________________
 
@@ -388,7 +388,7 @@ if were_files_found == 1:
         enemies_id_tab.append('nope')
 
     results = list(zip(enemies_id_tab,enemies_names_tab))
-    df = pd.DataFrame(results, columns=['id', 'name'])
+    df = pd.DataFrame(results, columns=['id', 'text'])
     df.to_excel('borchestra_enemies.xlsx', index=False)
     #_________________________________________
 
@@ -399,9 +399,9 @@ if were_files_found == 1:
         df = pd.DataFrame(items_list)
     else:
         results = list(zip(['null', 'null'],['null', 'null'],['null', 'null'],['null', 'null']))
-        df = pd.DataFrame(results, columns=['id', 'name', 'desc', 'sub'])
+        df = pd.DataFrame(results, columns=['id', 'text', 'description', 'subDescription'])
 
-    df.columns = ['Id', 'Name', 'description', 'subdescription']
+    df.columns = ['id', 'text', 'description', 'subDescription']
             
     df.to_excel('borchestra_items.xlsx', index=False)
     #_________________________________________
@@ -413,7 +413,7 @@ if were_files_found == 1:
         df = pd.DataFrame(abil_list)
     else:
         results = list(zip(['null', 'null'],['null', 'null'],['null', 'null']))
-        df = pd.DataFrame(results, columns=['id', 'name', 'desc'])
+        df = pd.DataFrame(results, columns=['id', 'text', 'description'])
 
     df.columns = ['Id', 'Name', 'description']       
     df.to_excel('borchestra_abils.xlsx', index=False)
@@ -427,9 +427,9 @@ if were_files_found == 1:
         df = pd.DataFrame(ach_list)
     else:
         results = list(zip(['null', 'null'],['null', 'null'],['null', 'null']))
-        df = pd.DataFrame(results, columns=['id', 'name', 'desc'])
+        df = pd.DataFrame(results, columns=['id', 'text', 'description'])
 
-    df.columns = ['Id', 'Name', 'description']
+    df.columns = ['id', 'text', 'description']
     df.to_excel('borchestra_achivments.xlsx', index=False)
     
 
@@ -437,9 +437,9 @@ if were_files_found == 1:
         df = pd.DataFrame(ach_secret_list)
     else:
         results = list(zip(['null', 'null'],['null', 'null']))
-        df = pd.DataFrame(results, columns=['id', 'name'])
+        df = pd.DataFrame(results, columns=['id', 'text'])
         
-    df.columns = ['Id', 'Name']  
+    df.columns = ['id', 'text']  
     df.to_excel('borchestra_achivments_secret.xlsx', index=False)
     #_________________________________________
 
