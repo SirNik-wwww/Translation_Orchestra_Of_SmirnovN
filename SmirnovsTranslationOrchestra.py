@@ -21,6 +21,7 @@ enemies_names_tab = []
 items_list = []
 
 abil_list = []
+abil_list_alt = []
 
 ach_list = []
 ach_secret_list = []
@@ -200,6 +201,54 @@ def parse_abil_to_excel(file_path):
         print(f"An error occurred: {e}")
 #__________________________________________________      END      ________________
 
+#_________________________________________________________________________________
+#______            For Abilities Alt                          ____________________
+#_________________________________________________________________________________
+def parse_abil_to_excel_alt(file_path):
+    try:
+        # 1. read
+        content = ""
+        for enc in ['utf-8', 'windows-1251']:
+            try:
+                with open(file_path, 'r', encoding=enc) as f:
+                    content = f.read()
+                break
+            except Exception:
+                continue
+        
+        if not content:
+            print("Error: Could not read file.")
+            return
+
+        # 2. find
+        new_content = content.replace(r'\"', r'\!').strip()
+        potential_blocks = re.findall(r'new\s*Ability.*?Visuals\s*=', new_content, re.DOTALL)
+
+        fields = {
+            'Abil_ID': r'new\s*Ability\(".*?",\s*(".*?")',
+            'Name': r'new\s*Ability\("(.*?)"',
+            'Description': r'Description\s*=\s*"(.*?)"'}
+
+        for block in potential_blocks:
+            data = {}
+            for key, pattern in fields.items():
+                match = re.search(pattern, block)
+                if match:
+                    # change \n to enter
+                    val = match.group(1).replace('\\n', '''
+''').strip()
+                    data[key] = val
+                    print(data)
+                else:
+                    data[key] = None
+
+            # add to list what will be upload text to exel tablet
+            abil_list_alt.append(data)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+#__________________________________________________      END      ________________
+
 
 
 #_________________________________________________________________________________
@@ -337,6 +386,7 @@ def process_folder(folder_path):
                     parse_items_to_excel(file_path)
 
                     parse_abil_to_excel(file_path)
+                    parse_abil_to_excel_alt(file_path)
 
                     parse_ach_to_excel(file_path)
 
@@ -415,8 +465,18 @@ if were_files_found == 1:
         results = list(zip(['null', 'null'],['null', 'null'],['null', 'null']))
         df = pd.DataFrame(results, columns=['id', 'text', 'description'])
 
-    df.columns = ['Id', 'Name', 'description']       
+    df.columns = ['id', 'name', 'description']       
     df.to_excel('borchestra_abils.xlsx', index=False)
+
+
+    if abil_list_alt:
+        df = pd.DataFrame(abil_list_alt)
+    else:
+        results = list(zip(['null', 'null'],['null', 'null'],['null', 'null']))
+        df = pd.DataFrame(results, columns=['id', 'text', 'description'])
+
+    df.columns = ['id', 'name', 'description']       
+    df.to_excel('borchestra_abils_alt_ver.xlsx', index=False)
     #_________________________________________
 
 
