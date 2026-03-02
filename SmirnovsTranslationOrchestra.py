@@ -225,7 +225,7 @@ def parse_abil_to_excel_alt(file_path):
         potential_blocks = re.findall(r'new\s*Ability.*?Visuals\s*=', new_content, re.DOTALL)
 
         fields = {
-            'Abil_ID': r'new\s*Ability\(".*?",\s*(".*?")',
+            'Abil_ID': r'new\s*Ability\(".*?",\s*"(.*?)"',
             'Name': r'new\s*Ability\("(.*?)"',
             'Description': r'Description\s*=\s*"(.*?)"'}
 
