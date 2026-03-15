@@ -18,6 +18,10 @@ chars_names_tab = []
 enemies_id_tab = []
 enemies_names_tab = []
 
+passives_list = []
+passives_names = []
+passives_id = []
+
 items_list = []
 
 abil_list = []
@@ -98,6 +102,85 @@ def extract_enemies(file_path):
 
 
 
+
+#_________________________________________________________________________________
+#______      For Passives what work                           ____________________
+#_________________________________________________________________________________
+
+def extract_working_passives(file_path):
+    pattern =  re.compile(r'AddCustomPassiveToPool\("(.*?)"')
+    pattern_2 =  re.compile(r'AddCustomPassiveToPool\(".*?",\s*"(.*?)"')
+
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
+        content = f.read()
+        matches = re.findall(pattern, content)
+        matches_2 = re.findall(pattern_2, content)
+
+# getting id
+        for match in matches:
+            passives_id.append(match)
+
+# getting names
+        for match2 in matches_2:
+            passives_names.append(match2)
+#__________________________________________________      END      ________________
+
+#_________________________________________________________________________________
+#______      For Passives                                     ____________________
+#_________________________________________________________________________________
+def parse_passives_to_excel(file_path):
+    try:
+        # 1. read
+        content = ""
+        for enc in ['utf-8', 'windows-1251']:
+            try:
+                with open(file_path, 'r', encoding=enc) as f:
+                    content = f.read()
+                break
+            except Exception:
+                continue
+        
+        if not content:
+            print("Error: Could not read file.")
+            return
+
+        # 2. find
+        new_content = content.replace(r'\"', r'\!').strip()
+        potential_blocks = re.findall(r'_passiveName\s*=.*?_characterDescription\s*=\s*".*?"', new_content, re.DOTALL)
+
+
+        fields = {
+            'Item_ID': r'm_PassiveID\s*=\s*"(.*?)"',
+            'Name': r'_passiveName\s*=\s*"(.*?)"',
+            'Description': r'_characterDescription\s*=\s*"(.*?)"',
+            'Flavour': r'_enemyDescription\s*=\s*"(.*?)"'}
+
+        for block in potential_blocks:
+            #block2 = block.replace('r3511', '"')
+            data = {}
+            for key, pattern in fields.items():
+                match = re.search(pattern, block)
+                if match:
+
+                    # change \n to enter
+                    val = match.group(1).replace('\\n', '''
+''').strip()
+                    
+                    data[key] = val
+                    print(data)
+                else:
+                    data[key] = None
+
+            # add to list what will be upload text to exel tablet
+            passives_list.append(data)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+#__________________________________________________      END      ________________
+
+
+
+
 #_________________________________________________________________________________
 #______            For Items                                  ____________________
 #_________________________________________________________________________________
@@ -174,7 +257,8 @@ def parse_abil_to_excel(file_path):
 
         # 2. find
         new_content = content.replace(r'\"', r'\!').strip()
-        potential_blocks = re.findall(r'new\s*Ability.*?Rarity\s*=', new_content, re.DOTALL)
+        potential_blocks = re.findall(r'new\s*Ability.*?Rarity', new_content, re.DOTALL)
+        potential_blocks_2 = re.findall(r'new\s*Ability.*?Cost\s*=', new_content, re.DOTALL)
 
         fields = {
             'Abil_ID': r'new\s*Ability\("(.*?)"',
@@ -185,6 +269,24 @@ def parse_abil_to_excel(file_path):
             data = {}
             for key, pattern in fields.items():
                 match = re.search(pattern, block)
+                if match:
+                    # change \n to enter
+                    val = match.group(1).replace('\\n', '''
+''').strip()
+                    data[key] = val
+                    print(data)
+                else:
+                    data[key] = None
+
+            # add to list what will be upload text to exel tablet
+            abil_list.append(data)
+
+        
+
+        for block_2 in potential_blocks_2:
+            data = {}
+            for key, pattern in fields.items():
+                match = re.search(pattern, block_2)
                 if match:
                     # change \n to enter
                     val = match.group(1).replace('\\n', '''
@@ -222,7 +324,8 @@ def parse_abil_to_excel_alt(file_path):
 
         # 2. find
         new_content = content.replace(r'\"', r'\!').strip()
-        potential_blocks = re.findall(r'new\s*Ability.*?Rarity\s*=', new_content, re.DOTALL)
+        potential_blocks = re.findall(r'new\s*Ability.*?Rarity', new_content, re.DOTALL)
+        potential_blocks_2 = re.findall(r'new\s*Ability.*?Cost\s*=', new_content, re.DOTALL)
 
         fields = {
             'Abil_ID': r'new\s*Ability\(.*?,\s*"(.*?)"',
@@ -230,6 +333,23 @@ def parse_abil_to_excel_alt(file_path):
             'Description': r'Description\s*=\s*"(.*?)"'}
 
         for block in potential_blocks:
+            data = {}
+            for key, pattern in fields.items():
+                match = re.search(pattern, block)
+                if match:
+                    # change \n to enter
+                    val = match.group(1).replace('\\n', '''
+''').strip()
+                    data[key] = val
+                    print(data)
+                else:
+                    data[key] = None
+
+            # add to list what will be upload text to exel tablet
+            abil_list_alt.append(data)
+
+
+        for block in potential_blocks_2:
             data = {}
             for key, pattern in fields.items():
                 match = re.search(pattern, block)
@@ -392,6 +512,9 @@ def process_folder(folder_path):
 
                     parse_ach_secret_to_excel(file_path)
 
+                    parse_passives_to_excel(file_path)
+                    extract_working_passives(file_path)
+
 
                     global were_files_found 
                     were_files_found = 1
@@ -440,6 +563,34 @@ if were_files_found == 1:
     results = list(zip(enemies_id_tab,enemies_names_tab))
     df = pd.DataFrame(results, columns=['id', 'text'])
     df.to_excel('borchestra_enemies.xlsx', index=False)
+    #_________________________________________
+
+
+
+    #_______ Passives what work ______________
+
+    #Expanding lists to the same length
+    while len(passives_id) > len(passives_names):
+        passives_names.append('nope')
+
+    while len(passives_id) < len(passives_names):
+        passives_id.append('nope')
+
+    results = list(zip(passives_id,passives_names))
+    df = pd.DataFrame(results, columns=['id', 'text'])
+    df.to_excel('borchestra_WORKING_passives.xlsx', index=False)
+    #_________________________________________
+
+    #_______ Passives ________________________
+    if passives_list:
+        df = pd.DataFrame(passives_list)
+    else:
+        results = list(zip(['null', 'null'],['null', 'null'],['null', 'null'],['null', 'null']))
+        df = pd.DataFrame(results, columns=['id', 'text', 'description', 'subDescription'])
+
+    df.columns = ['id', 'text', 'description', 'subDescription']
+            
+    df.to_excel('borchestra_all_passives.xlsx', index=False)
     #_________________________________________
 
 
