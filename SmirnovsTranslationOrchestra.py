@@ -174,7 +174,7 @@ def parse_abil_to_excel(file_path):
 
         # 2. find
         new_content = content.replace(r'\"', r'\!').strip()
-        potential_blocks = re.findall(r'new\s*Ability.*?Visuals\s*=', new_content, re.DOTALL)
+        potential_blocks = re.findall(r'new\s*Ability.*?Rarity\s*=', new_content, re.DOTALL)
 
         fields = {
             'Abil_ID': r'new\s*Ability\("(.*?)"',
@@ -222,7 +222,7 @@ def parse_abil_to_excel_alt(file_path):
 
         # 2. find
         new_content = content.replace(r'\"', r'\!').strip()
-        potential_blocks = re.findall(r'new\s*Ability.*?Visuals\s*=', new_content, re.DOTALL)
+        potential_blocks = re.findall(r'new\s*Ability.*?Rarity\s*=', new_content, re.DOTALL)
 
         fields = {
             'Abil_ID': r'new\s*Ability\(.*?,\s*"(.*?)"',
