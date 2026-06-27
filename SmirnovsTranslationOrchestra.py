@@ -262,8 +262,8 @@ def parse_abil_to_excel(file_path):
 
         fields = {
             'Abil_ID': r'new\s*Ability\("(.*?)"',
-            'Name': r'Name\s*=\s*"(.*?)"',
-            'Description': r'Description\s*=\s*"(.*?)"'}
+            'Name': r'ability.*?Name\s*=\s*"(.*?)"',
+            'Description': r'ability.*?Description\s*=\s*"(.*?)"'}
 
         for block in potential_blocks:
             data = {}
